@@ -8,6 +8,20 @@ Simple utility to manage my ssh-tunneled NFS mounts (in OSX).
 2. Ensure that you have added your private key to your ssh-agent (e.g. run `# ssh-add`)
 3. `# ./nfssh` will then create the tunnels and mount the NFS share. When you give it the kill/interrupt signal it gracefully un-mounts the share.
 
+## Requirements
+1. NFS version 4.
+1. ssh-server
+1. Fixed ports for nfsd / mountd
+
+### E.g. (something like)
+```bash
+echo "STATDOPTS=\"--port 2231\"" >> /etc/default/nfs-common
+echo "RPCMOUNTDOPTS=\"--manage-gids --port 2233\"" >> /etc/default/nfs-kernel-server
+echo "options lockd nlm_udpport=2232 nlm_tcpport=2232" >> /etc/modules
+echo "/mnt/NfsShare 127.0.0.1(rw,insecure,no_subtree_check,async,all_squash,anonuid=1000,anongid=1000)" >> /etc/exports
+service nfs-kernel-server restart
+```
+
 ## Details
 It opens up a ssh-client (connection), utilizing the ssh-agent for authentication, and starts listening for two connections on localhost of the local machine (one port for nfsd, and one for mountd). Next we tell the mount utility to mount our NFS from localhost specifying that it should use our custom ports. When the mount utility opens new connections to our tunnel listeners they are piped to sockets dialed remotely through the ssh-client, reaching nfsd and mountd respectively. Following this the program waits for either the ssh-socket failing (in which case we shutdown the local listeners before attempting to reconnect the ssh-client every five seconds until we get back up, gracefully only remounting if needed), or a kill/interrupt signal (which means we un-mount the NFS share and tear down all the connections).
 

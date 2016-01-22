@@ -13,7 +13,7 @@ Simple utility to manage my ssh-tunneled NFS mounts (in OSX).
 1. ssh-server
 1. Fixed ports for nfsd / mountd
 
-### E.g. (something like)
+###### E.g. (something like)
 ```bash
 echo "STATDOPTS=\"--port 2231\"" >> /etc/default/nfs-common
 echo "RPCMOUNTDOPTS=\"--manage-gids --port 2233\"" >> /etc/default/nfs-kernel-server

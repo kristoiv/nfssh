@@ -69,7 +69,9 @@ mainLoop:
 
 		select {
 		case <-killSignal:
-			unmountNfs()
+			if nfsIsMounted() {
+				unmountNfs()
+			}
 			break mainLoop
 		case <-clientWaitChan:
 			log.Println("Ssh connection closed, restarting in five seconds")
